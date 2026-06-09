@@ -7,4 +7,5 @@ public class CommandType {
     public static final int ADD_GROUP = 4;
     public static final int ADD_TO_GROUP = 5;
     public static final int SET_PRICE = 6;
+    public static final int SEARCH_PRODUCTS = 7;
 }

@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import practice1.Message;
 import practice1.Packet;
+import practice4.ProductService;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -16,13 +17,14 @@ class ProcessorTest {
     @Test
     void shouldProcessMessagesConcurrentlyWithoutDataLoss() throws InterruptedException {
         StoreDatabase db = new StoreDatabase();
+        ProductService productService = new ProductService();
 
         BlockingQueue<Packet> decodedQueue = new ArrayBlockingQueue<>(1000);
         BlockingQueue<Packet> responseQueue = new ArrayBlockingQueue<>(1000);
 
         ExecutorService processorPool = Executors.newFixedThreadPool(4);
         for (int i = 0; i < 4; i++) {
-            processorPool.execute(new Processor(decodedQueue, responseQueue, db));
+            processorPool.execute(new Processor(decodedQueue, responseQueue, db, productService));
         }
 
         int totalRequests = 100;
@@ -56,7 +58,6 @@ class ProcessorTest {
         processorPool.shutdownNow();
 
         Assertions.assertThat(db.getQuantity("Шоколад Milka молочний")).isEqualTo(1200);
-
         Assertions.assertThat(responseQueue.size()).isEqualTo(totalRequests);
     }
 }

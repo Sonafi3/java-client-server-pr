@@ -6,10 +6,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import practice1.Packet;
+import practice4.ProductService;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         StoreDatabase db = new StoreDatabase();
+        ProductService productService = new ProductService();
 
         BlockingQueue<byte[]> rawQueue = new ArrayBlockingQueue<>(100);
         BlockingQueue<Packet> decodedQueue = new ArrayBlockingQueue<>(100);
@@ -22,8 +24,10 @@ public class Main {
             executorService.execute(new FakeReceiver(rawQueue));
         for (int i = 0; i < 2; i++)
             executorService.execute(new Decryptor(rawQueue, decodedQueue));
+
         for (int i = 0; i < 4; i++)
-            executorService.execute(new Processor(decodedQueue, responseQueue, db));
+            executorService.execute(new Processor(decodedQueue, responseQueue, db, productService));
+
         for (int i = 0; i < 3; i++)
             executorService.execute(new Encryptor(responseQueue, encryptedQueue));
         for (int i = 0; i < 5; i++)
