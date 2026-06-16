@@ -41,8 +41,11 @@ public class ProductService {
         if (filter.maxPrice != null)
             stream = stream.filter(p -> p.getPrice() <= filter.maxPrice);
 
-        return stream.skip((long) (filter.page - 1) * filter.size)
-                .limit(filter.size)
+        int safePage = Math.max(1, filter.page);
+        int safeSize = Math.max(1, filter.size);
+
+        return stream.skip((long) (safePage - 1) * safeSize)
+                .limit(safeSize)
                 .collect(Collectors.toList());
     }
 }

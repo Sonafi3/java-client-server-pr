@@ -24,10 +24,8 @@ public class Main {
             executorService.execute(new FakeReceiver(rawQueue));
         for (int i = 0; i < 2; i++)
             executorService.execute(new Decryptor(rawQueue, decodedQueue));
-
         for (int i = 0; i < 4; i++)
             executorService.execute(new Processor(decodedQueue, responseQueue, db, productService));
-
         for (int i = 0; i < 3; i++)
             executorService.execute(new Encryptor(responseQueue, encryptedQueue));
         for (int i = 0; i < 5; i++)
@@ -42,6 +40,6 @@ public class Main {
         }
 
         System.out.println(
-                "Кінцевий залишок на складі (Шоколад Milka молочний): " + db.getQuantity("Шоколад Milka молочний"));
+                "Залишок на складі (Шоколад Milka молочний): " + db.getQuantity("Шоколад Milka молочний"));
     }
 }
