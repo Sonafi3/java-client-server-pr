@@ -48,4 +48,9 @@ public class ProductService {
                 .limit(safeSize)
                 .collect(Collectors.toList());
     }
+
+    public boolean existsByName(String name) {
+        return products.values().stream()
+                .anyMatch(p -> p.getName().equalsIgnoreCase(name));
+    }
 }
