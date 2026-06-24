@@ -11,7 +11,7 @@ import practice4.ProductService;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         StoreDatabase db = new StoreDatabase();
-        ProductService productService = new ProductService();
+        ProductService productService = new ProductService("jdbc:sqlite:store.db");
 
         BlockingQueue<byte[]> rawQueue = new ArrayBlockingQueue<>(100);
         BlockingQueue<Packet> decodedQueue = new ArrayBlockingQueue<>(100);

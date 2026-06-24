@@ -23,7 +23,7 @@ public class StoreServerHTTP {
     }
 
     public static void main(String[] args) throws Exception {
-        ProductService ps = new ProductService();
+        ProductService ps = new ProductService("jdbc:sqlite:store.db");
         ps.create(new practice4.Product(1, "TestItem", "Test", 10, 100.0));
         startServer(8080, ps);
     }

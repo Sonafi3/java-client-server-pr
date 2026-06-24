@@ -17,7 +17,7 @@ class ProcessorTest {
     @Test
     void shouldProcessMessagesConcurrentlyWithoutDataLoss() throws InterruptedException {
         StoreDatabase db = new StoreDatabase();
-        ProductService productService = new ProductService();
+        ProductService productService = new ProductService("jdbc:sqlite:store.db");
 
         BlockingQueue<Packet> decodedQueue = new ArrayBlockingQueue<>(1000);
         BlockingQueue<Packet> responseQueue = new ArrayBlockingQueue<>(1000);

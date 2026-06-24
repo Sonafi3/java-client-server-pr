@@ -11,6 +11,7 @@ import practice4.ProductService;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,11 +21,19 @@ class HttpServerTest {
     private static ProductService productService;
     private static final Gson gson = new Gson();
     private static final int PORT = 8081;
+    private static final String TEST_DB = "jdbc:sqlite:test_http.db";
 
     @BeforeAll
     static void setUp() throws Exception {
-        productService = new ProductService();
-        productService.create(new Product(1, "Шоколад Milka молочний", "Солодощі", 10, 80.0));
+        productService = new ProductService(TEST_DB);
+
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(TEST_DB);
+                java.sql.Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM products");
+        } catch (Exception e) {
+        }
+
+        productService.create(new Product(1, "Шоколад Milka молочний", "Солодощі", 10, 50.0));
         server = StoreServerHTTP.startServer(PORT, productService);
     }
 
@@ -35,7 +44,7 @@ class HttpServerTest {
     }
 
     private String getJwtToken() throws Exception {
-        URL url = new URL("http://localhost:" + PORT + "/login");
+        URL url = URI.create("http://localhost:" + PORT + "/login").toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setDoOutput(true);
@@ -52,7 +61,7 @@ class HttpServerTest {
 
     @Test
     void testProtectedEndpointWithoutToken_ShouldReturn401() throws Exception {
-        URL url = new URL("http://localhost:" + PORT + "/products/1");
+        URL url = URI.create("http://localhost:" + PORT + "/products/1").toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
@@ -62,7 +71,7 @@ class HttpServerTest {
     @Test
     void testGetProduct_WithValidToken_ShouldReturn200() throws Exception {
         String token = getJwtToken();
-        URL url = new URL("http://localhost:" + PORT + "/products/1");
+        URL url = URI.create("http://localhost:" + PORT + "/products/1").toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Authorization", "Bearer " + token);
@@ -75,7 +84,7 @@ class HttpServerTest {
     @Test
     void testPutProduct_UniqueName_ShouldCreate() throws Exception {
         String token = getJwtToken();
-        URL url = new URL("http://localhost:" + PORT + "/products");
+        URL url = URI.create("http://localhost:" + PORT + "/products").toURL();
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("PUT");
         con.setDoOutput(true);

@@ -1,14 +1,33 @@
 package practice4;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductServiceTest {
 
+    private static final String TEST_DB = "jdbc:sqlite:test.db";
+    private ProductService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new ProductService(TEST_DB);
+        try (Connection conn = DriverManager.getConnection(TEST_DB);
+                Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM products");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     void testCrudOperations() {
-        ProductService service = new ProductService();
         Product product = new Product(1, "Milka", "Chocolate", 10, 80.0);
 
         service.create(product);
@@ -26,7 +45,6 @@ class ProductServiceTest {
 
     @Test
     void testDynamicFiltering() {
-        ProductService service = new ProductService();
         service.create(new Product(1, "Milka", "Chocolate", 10, 80.0));
         service.create(new Product(2, "Roshen", "Chocolate", 20, 40.0));
         service.create(new Product(3, "Apple", "Fruit", 5, 60.0));
@@ -43,7 +61,6 @@ class ProductServiceTest {
 
     @Test
     void testPagination() {
-        ProductService service = new ProductService();
         for (int i = 1; i <= 5; i++) {
             service.create(new Product(i, "Item " + i, "Category", 10, 50.0));
         }
